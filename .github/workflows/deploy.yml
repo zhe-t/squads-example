@@ -18,7 +18,7 @@ jobs:
         run: cargo install toml-cli
 
       - name: Deploy buffer
-        uses: actions/solana-buffer-deploy@v0.1.6
+        uses: cardinal-labs/solana-buffer-deploy-action@main
         id: buffer-deploy
         with:
           devnet: true
@@ -29,7 +29,7 @@ jobs:
           buffer-authority: ${{ secrets.DEVNET_MULTISIG_VAULT }}
 
       - name: Squads program upgrade
-        uses: actions/squads-program-upgrade@v0.2.4
+        uses: cardinal-labs/squads-program-upgrade@main
         with:
           network-url: 'https://api.devnet.solana.com'
           program-multisig: ${{ secrets.DEVNET_MULTISIG }}
