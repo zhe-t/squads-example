@@ -1,0 +1,42 @@
+name: Deploy Programs on Develop Push
+
+on: 
+  workflow_dispatch:
+  push: 
+    branches: [ "main" ]
+    tags:        
+      - '**'
+
+jobs:
+  build_programs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install toml-cli
+        run: cargo install toml-cli
+
+      - name: Deploy buffer
+        uses: actions/solana-buffer-deploy@v0.1.6
+        id: buffer-deploy
+        with:
+          devnet: true
+          network: devnet
+          program: ${{ secrets.PROGRAM_NAME }}
+          keypair: ${{ secrets.DEVNET_DEPLOYER_KEYPAIR }}
+          program-id: ${{ secrets.PROGRAM_ID }}
+          buffer-authority: ${{ secrets.DEVNET_MULTISIG_VAULT }}
+
+      - name: Squads program upgrade
+        uses: actions/squads-program-upgrade@v0.2.4
+        with:
+          network-url: 'https://api.devnet.solana.com'
+          program-multisig: ${{ secrets.DEVNET_MULTISIG }}
+          program-id: ${{ secrets.PROGRAM_ID }}
+          buffer: ${{ steps.buffer-deploy.outputs.buffer }}
+          idl-buffer: ${{ steps.buffer-deploy.outputs.idl-buffer }}
+          spill-address: ${{ secrets.DEVNET_DEPLOYER_ADDRESS }}
+          authority: ${{ secrets.DEVNET_MULTISIG_VAULT }}
+          name: "Deploy ${{ secrets.PROGRAM_NAME }} program"
+          keypair: ${{ secrets.DEVNET_DEPLOYER_KEYPAIR }}
