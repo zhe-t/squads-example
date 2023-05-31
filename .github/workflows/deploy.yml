@@ -21,7 +21,6 @@ jobs:
         uses: cardinal-labs/solana-buffer-deploy-action@main
         id: buffer-deploy
         with:
-          devnet: true
           network: devnet
           program: ${{ secrets.PROGRAM_NAME }}
           keypair: ${{ secrets.DEVNET_DEPLOYER_KEYPAIR }}
