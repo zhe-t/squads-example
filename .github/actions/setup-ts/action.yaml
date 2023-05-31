@@ -1,0 +1,28 @@
+name: "Setup ts"
+description: "Setup ts"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    - uses: actions/cache@v2
+      name: Cache Typescript node_modules
+      id: cache-typescript-node-modules
+      with:
+        path: |
+          ./node_modules/
+        key: node-modules-${{ runner.os }}-v0000-${{ env.NODE_VERSION }}-${{ hashFiles('./yarn.lock') }}-${{ hashFiles('./**/*/package.json') }}
+    - run: yarn && ./node_modules/.bin/lerna bootstrap
+      shell: bash
+      if: steps.cache-typescript-node-modules.outputs.cache-hit != 'true'
+    - name: Cache Typescript Build
+      uses: actions/cache@v2
+      id: cache-typescript-build
+      with:
+        path: |
+          ./packages
+        key: deps-${{ runner.os }}-ts-build-${{ hashFiles('./packages/*/src/**/*') }}-${{ hashFiles('./yarn.lock') }}
+    - run: yarn run build
+      if: steps.cache-typescript-build.outputs.cache-hit != 'true'
+      shell: bash
